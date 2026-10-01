@@ -1,5 +1,5 @@
 // Port of Liero's game logic (via OpenLiero: worm.cpp, weapon.cpp, nobject.cpp, sobject.cpp,
-// ninjarope.cpp, bobject.cpp). Fixed-point 16.16, 70 ticks/second.
+// ninjarope.cpp, bobject.cpp). Fixed-point 16.16, TICK_RATE ticks/second (Liero: 70).
 // The page is the level: terrain.data 0 = air ("background"), non-zero = diggable dirt.
 
 import { Terrain } from '../terrain.ts';
@@ -9,7 +9,11 @@ import {
   type NObjectType, type WeaponType,
 } from './data.ts';
 
-export const TICK_RATE = 70;
+/**
+ * Simulation ticks per second. Original Liero runs at 70; 88 plays everything ~25% faster, which suits
+ * a big browser window better. All game timings are in ticks, so this is the one speed knob.
+ */
+export const TICK_RATE = 88;
 export const MAX_HEALTH = 100;
 export const RESPAWN_TICKS = 150;
 const MAX_WOBJECTS = 600, MAX_NOBJECTS = 600, MAX_BOBJECTS = C.BloodLimit;

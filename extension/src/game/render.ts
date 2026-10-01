@@ -57,8 +57,17 @@ export class Renderer {
    * `bg` null means the map is a screenshot: `fg` is the whole picture, the backdrop is that same
    * picture, and the solid layer is the picture cut out by the collision mask.
    */
-  setMap(t: Terrain, fg: CanvasImageSource, bg: CanvasImageSource | null, scale: number) {
+  setMap(t: Terrain, fg: CanvasImageSource, bg: CanvasImageSource | null, scale: number, pageBg?: [number, number, number]) {
     this.terrain = t;
+    // Holes take the page's own background colour, a shade darker (lighter on dark pages) so craters still read.
+    if (pageBg) {
+      const lum = 0.299 * pageBg[0] + 0.587 * pageBg[1] + 0.114 * pageBg[2];
+      const k = lum > 128 ? 0.9 : 1.18, a = lum > 128 ? 0 : 10;
+      const c = pageBg.map((v) => Math.max(0, Math.min(255, Math.round(v * k + a))));
+      this.holeColor = `rgb(${c[0]},${c[1]},${c[2]})`;
+    } else {
+      this.holeColor = null; // older maps: holes show the earth behind the page
+    }
     this.scale = scale;
     this.bgScale = bg ? 1 : scale;
     this.fg = document.createElement('canvas');
@@ -114,7 +123,8 @@ export class Renderer {
     const s = this.scale, b = this.bgScale;
     if (color === 0) {
       this.fgx.clearRect(x * s, y * s, s, s);
-      this.bgx.clearRect(x * b, y * b, b, b);
+      if (this.holeColor) { this.bgx.fillStyle = this.holeColor; this.bgx.fillRect(x * b, y * b, b, b); }
+      else this.bgx.clearRect(x * b, y * b, b, b);
     } else {
       this.fgx.fillStyle = PALETTE_CSS[color];
       this.fgx.fillRect(x * s, y * s, s, s);
@@ -139,6 +149,7 @@ export class Renderer {
     this.edgex.putImageData(img, 0, 0, x0, y0, x1 - x0 + 1, y1 - y0 + 1);
   }
 
+  private holeColor: string | null = null;
   private earthPat: CanvasPattern | null = null;
   /** A tiling patch of dark earth (1 texel per world pixel), in the browns of Liero's dug-out dirt. */
   private earth(): CanvasPattern {

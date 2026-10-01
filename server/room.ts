@@ -165,6 +165,7 @@ export class RoomCore {
     for (let i = 0; i < terrain.data.length; i++) if (terrain.data[i]) terrain.data[i] = 1;
     header.title = String(header.title ?? '').slice(0, 200);
     header.url = String(header.url ?? '').slice(0, 2000);
+    header.bg = Array.isArray(header.bg) && header.bg.length === 3 ? header.bg.map((v) => Math.max(0, Math.min(255, Number(v) | 0))) as [number, number, number] : undefined;
     this.header = header;
     this.fg = fg;
     this.bg = bg;

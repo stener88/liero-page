@@ -286,7 +286,7 @@ export class Game {
     const { header, terrain, fg, bg } = await decodeMap(buf);
     const fgImg = await createImageBitmap(new Blob([fg as BlobPart], { type: 'image/webp' }));
     const bgImg = bg.length ? await createImageBitmap(new Blob([bg as BlobPart], { type: 'image/webp' })) : null;
-    this.renderer.setMap(terrain, fgImg, bgImg, header.scale);
+    this.renderer.setMap(terrain, fgImg, bgImg, header.scale, header.bg);
     if (!this.capture) this.introStart = performance.now();
     this.mapAt = performance.now() + 300;
     fgImg.close(); bgImg?.close();

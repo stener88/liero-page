@@ -1,6 +1,6 @@
 // Wire protocol. JSON text frames for control/state; binary frames carry the map.
 
-export const PROTOCOL_VERSION = 4;
+export const PROTOCOL_VERSION = 5;
 
 /** [seq, keys, aim (Liero angle 0..128), weapon slot] */
 export type InputTuple = [number, number, number, number];
@@ -35,6 +35,8 @@ export interface MapHeader {
   fgLen: number;
   bgLen: number;
   title: string;
+  /** Page background colour (RGB). Blasted holes are tinted from it. */
+  bg?: [number, number, number];
   url: string;
 }
 

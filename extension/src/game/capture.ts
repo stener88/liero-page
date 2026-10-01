@@ -194,7 +194,7 @@ export async function capturePage(ignore: Element | null, scale: number, shot: H
     }
   }
 
-  if (shot) return fromScreenshot(shot, prims, sx, sy);
+  if (shot) return fromScreenshot(shot, prims, sx, sy, pageBg);
 
   // --- World bounds -----------------------------------------------------------
   // Layout below is in CSS px (Wc x Hc); the world is PAGE_PX times smaller (W x H).
@@ -280,7 +280,7 @@ export async function capturePage(ignore: Element | null, scale: number, shot: H
   }
 
   return {
-    header: { w: W, h: H, scale: S, fgLen: fg.length, bgLen: bgBytes.length, title: document.title.slice(0, 200), url: location.href.split('#')[0].slice(0, 2000) },
+    header: { w: W, h: H, scale: S, fgLen: fg.length, bgLen: bgBytes.length, bg: [pageBg[0], pageBg[1], pageBg[2]], title: document.title.slice(0, 200), url: location.href.split('#')[0].slice(0, 2000) },
     mask, fg, bg: bgBytes,
     originX: ox,
     originY: oy,
@@ -332,7 +332,7 @@ async function loadImages(list: Extract<Prim, { k: 'img' }>[], S: number): Promi
 }
 
 /** Map = the visible viewport. Picture from the screenshot, collision from the DOM. */
-async function fromScreenshot(shot: HTMLImageElement, prims: Prim[], sx: number, sy: number): Promise<Capture> {
+async function fromScreenshot(shot: HTMLImageElement, prims: Prim[], sx: number, sy: number, pageBg: RGBA): Promise<Capture> {
   const P = PAGE_PX;
   const W = Math.min(MAX_WORLD_W, Math.floor(window.innerWidth / P)), H = Math.min(MAX_WORLD_H, Math.floor(window.innerHeight / P));
   const k = shot.naturalWidth / window.innerWidth; // screenshot px per CSS px
@@ -370,7 +370,7 @@ async function fromScreenshot(shot: HTMLImageElement, prims: Prim[], sx: number,
     if (fg.length < 6 * 1024 * 1024) break;
   }
   return {
-    header: { w: W, h: H, scale: S, fgLen: fg.length, bgLen: 0, title: document.title.slice(0, 200), url: location.href.split('#')[0].slice(0, 2000) },
+    header: { w: W, h: H, scale: S, fgLen: fg.length, bgLen: 0, bg: [pageBg[0], pageBg[1], pageBg[2]], title: document.title.slice(0, 200), url: location.href.split('#')[0].slice(0, 2000) },
     mask, fg, bg: new Uint8Array(0),
     originX: sx, originY: sy,
   };
