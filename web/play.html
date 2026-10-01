@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Liero.page: you've been invited</title>
+  <meta name="description" content="Join a Liero.page match in your browser. No install needed.">
+  <meta property="og:title" content="You've been challenged to Liero.page">
+  <meta property="og:description" content="A worm deathmatch on a web page. Click to join, no install needed.">
+  <link rel="icon" href="/icons/48.png">
+  <style>
+    html, body { margin: 0; height: 100%; background: #0b0d12; color: #e6e9ef; overflow: hidden;
+      font: 14px/1.5 ui-monospace, Menlo, Consolas, monospace; }
+    #note { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 2147483647;
+      background: rgba(10,12,18,.9); border: 1px solid rgba(255,255,255,.15); border-radius: 8px;
+      padding: 10px 14px; max-width: calc(100vw - 48px); text-align: center; }
+    #note[hidden] { display: none; }
+    .loading { position: fixed; inset: 0; display: grid; place-items: center; color: #9aa3b2; }
+    .loading b { color: #ffd23f; letter-spacing: .06em; }
+  </style>
+</head>
+<body>
+  <div class="loading"><div><b>LIERO.PAGE</b> · joining the match…</div></div>
+  <div id="note" hidden></div>
+  <script src="/dist/play.js"></script>
+</body>
+</html>

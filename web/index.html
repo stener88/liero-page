@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Liero.page: every web page is a battlefield</title>
+  <meta name="description" content="A real-time worm deathmatch on the web page you're looking at. Play right here, then turn any site into a map and send your friends a link.">
+  <meta property="og:title" content="Liero.page: every web page is a battlefield">
+  <meta property="og:description" content="Real-time worm deathmatch on any web page. Send a link, friends join from their browser.">
+  <meta property="og:image" content="https://liero.page/img/og.png">
+  <meta property="og:url" content="https://liero.page/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/icons/48.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #14111c; --bg2: #1c1826; --ink: #f2ecdf; --muted: #a79fb5; --line: #3a3349;
+      --yellow: #ffd23f; --red: #ff5a5f; --blue: #3ec1ff; --green: #7cff6b; --dirt: #8a5a33; --dirt2: #6b4425;
+      --px: "Press Start 2P", ui-monospace, monospace;
+      --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.65 var(--mono); }
+    a { color: var(--yellow); }
+    img { max-width: 100%; height: auto; display: block; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+    .px { font-family: var(--px); letter-spacing: .02em; }
+
+    /* buttons: chunky pixel style */
+    .btn { display: inline-flex; align-items: center; gap: 10px; font: 12px/1 var(--px); text-decoration: none; text-transform: uppercase;
+      padding: 16px 20px; color: #14111c; background: var(--yellow); border: 0; cursor: pointer;
+      box-shadow: inset -4px -4px 0 rgba(0,0,0,.25), inset 4px 4px 0 rgba(255,255,255,.35), 4px 4px 0 #000; transition: transform .06s; }
+    .btn:hover { transform: translate(-1px,-1px); box-shadow: inset -4px -4px 0 rgba(0,0,0,.25), inset 4px 4px 0 rgba(255,255,255,.35), 5px 5px 0 #000; }
+    .btn:active { transform: translate(3px,3px); box-shadow: inset -4px -4px 0 rgba(0,0,0,.25), inset 4px 4px 0 rgba(255,255,255,.35), 1px 1px 0 #000; }
+    .btn.big { font-size: 15px; padding: 20px 26px; }
+    .btn.ghost { background: var(--bg2); color: var(--ink); box-shadow: inset 0 0 0 3px var(--line), 4px 4px 0 #000; }
+    .btn.ghost:hover { box-shadow: inset 0 0 0 3px var(--muted), 5px 5px 0 #000; }
+
+    /* nav */
+    nav { display: flex; align-items: center; gap: 22px; padding: 22px 0; }
+    .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--yellow); font: 16px/1 var(--px); }
+    .logo img { width: 32px; height: 32px; image-rendering: pixelated; }
+    nav .links { margin-left: auto; display: flex; gap: 22px; align-items: center; }
+    nav .links a:not(.btn) { color: var(--muted); text-decoration: none; font-size: 14px; }
+    nav .links a:not(.btn):hover { color: var(--ink); }
+    nav .btn { padding: 12px 14px; font-size: 10px; }
+
+    /* hero */
+    .hero { display: grid; grid-template-columns: 1fr 1.05fr; gap: 48px; align-items: center; padding: 40px 0 72px; }
+    .tag { display: inline-flex; gap: 10px; flex-wrap: wrap; font: 9px/1.8 var(--px); color: var(--green); margin-bottom: 22px; }
+    .tag span { background: rgba(124,255,107,.08); border: 2px solid rgba(124,255,107,.35); padding: 4px 8px; }
+    h1 { font: 34px/1.35 var(--px); margin: 0 0 24px; text-shadow: 4px 4px 0 #000; }
+    h1 em { font-style: normal; color: var(--red); }
+    .lead { font-size: 18px; color: #d8d0c4; margin: 0 0 30px; max-width: 32em; }
+    .cta { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+    .small { color: var(--muted); font-size: 13px; margin-top: 18px; }
+    .small kbd { font-size: 11px; }
+
+    /* browser-window frame for screenshots */
+    .win { background: #0b0a10; border: 3px solid #000; box-shadow: 8px 8px 0 #000; }
+    .win .bar { display: flex; gap: 6px; align-items: center; padding: 8px 10px; background: #2a2436; border-bottom: 3px solid #000; }
+    .win .bar i { width: 10px; height: 10px; background: var(--red); display: block; }
+    .win .bar i:nth-child(2) { background: var(--yellow); } .win .bar i:nth-child(3) { background: var(--green); }
+    .win .bar span { margin-left: 10px; flex: 1; background: #14111c; color: var(--muted); font-size: 11px; padding: 3px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hero .win { transform: rotate(1.2deg); }
+
+    /* dirt divider */
+    .dirt { height: 28px; background:
+      radial-gradient(circle at 10px 0, var(--bg) 9px, transparent 10px) 0 0/40px 28px repeat-x,
+      repeating-linear-gradient(90deg, var(--dirt) 0 12px, var(--dirt2) 12px 20px, var(--dirt) 20px 36px, #7a4f2c 36px 44px); }
+
+    section { padding: 80px 0; }
+    .kicker { font: 10px/1 var(--px); color: var(--yellow); margin-bottom: 18px; }
+    h2 { font: 24px/1.45 var(--px); margin: 0 0 18px; text-shadow: 3px 3px 0 #000; }
+    .sec-lead { color: #d8d0c4; max-width: 40em; margin: 0 0 40px; font-size: 17px; }
+
+    /* this page is the map */
+    .map { background: var(--bg2); border-top: 3px solid #000; border-bottom: 3px solid #000; }
+    .map-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
+    .map ul { list-style: none; padding: 0; margin: 0 0 32px; display: grid; gap: 14px; }
+    .map li { display: flex; gap: 14px; align-items: baseline; }
+    .map li b { font: 10px/1.6 var(--px); color: var(--ink); min-width: 140px; }
+    .map li span { color: var(--muted); }
+
+    /* steps */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .step { background: var(--bg2); border: 3px solid #000; box-shadow: 6px 6px 0 #000; padding: 24px; }
+    .step .n { font: 22px/1 var(--px); color: var(--bg); background: var(--yellow); display: inline-block; padding: 8px 11px; margin-bottom: 18px; box-shadow: 3px 3px 0 #000; }
+    .step:nth-child(2) .n { background: var(--blue); } .step:nth-child(3) .n { background: var(--red); }
+    .step h3 { font: 12px/1.6 var(--px); margin: 0 0 10px; }
+    .step p { margin: 0; color: var(--muted); }
+
+    /* arsenal */
+    .arsenal { display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; align-items: center; }
+    .marquee { overflow: hidden; border-top: 3px solid #000; border-bottom: 3px solid #000; background: #0b0a10; padding: 14px 0; margin-top: 56px; }
+    .marquee div { display: flex; gap: 34px; width: max-content; animation: scroll 60s linear infinite; font: 11px/1 var(--px); color: var(--muted); }
+    .marquee span:nth-child(3n) { color: var(--yellow); } .marquee span:nth-child(5n) { color: var(--red); }
+    @keyframes scroll { to { transform: translateX(-50%); } }
+    @media (prefers-reduced-motion: reduce) { .marquee div { animation: none; } }
+
+    /* controls */
+    .keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px 30px; }
+    .keys div { display: flex; align-items: center; gap: 12px; color: var(--muted); }
+    .keys div > span:first-child { display: flex; gap: 4px; min-width: 120px; }
+    kbd { font: 600 12px/1 var(--mono); color: var(--ink); background: #2a2436; border: 2px solid #000; box-shadow: inset -2px -2px 0 rgba(0,0,0,.35), 2px 2px 0 #000; padding: 6px 8px; white-space: nowrap; display: inline-block; }
+
+    /* faq */
+    .faq { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 40px; }
+    .faq h3 { font: 11px/1.7 var(--px); margin: 0 0 8px; color: var(--ink); }
+    .faq p { margin: 0 0 18px; color: var(--muted); }
+
+    /* final cta */
+    .final { text-align: center; background: var(--bg2); border-top: 3px solid #000; }
+    .final h2 { font-size: 28px; }
+    .final .cta { justify-content: center; margin-top: 28px; }
+
+    footer { padding: 30px 0 50px; color: var(--muted); font-size: 13px; }
+    footer .wrap { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+    footer a { color: var(--muted); }
+
+    .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #000; color: var(--ink); padding: 12px 16px; font-size: 14px; border: 3px solid var(--yellow); z-index: 10; }
+    [hidden] { display: none !important; }
+    body.playing .toast { display: none; }
+
+    @media (max-width: 900px) {
+      .hero, .map-grid, .arsenal { grid-template-columns: 1fr; }
+      .hero .win { transform: none; }
+      .steps, .faq { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+      h2 { font-size: 18px; }
+      nav .links a:not(.btn) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <nav>
+      <a class="logo" href="/"><img src="/icons/48.png" alt="">LIERO.PAGE</a>
+      <div class="links">
+        <a href="#how">How it works</a>
+        <a href="#weapons">Weapons</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn ghost install" href="#install">Add to Chrome</a>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div>
+        <div class="tag"><span>LIVE MULTIPLAYER</span><span>8 PLAYERS</span><span>40 WEAPONS</span></div>
+        <h1>Every web page is a <em>battlefield</em>.</h1>
+        <p class="lead">Liero.page turns the page you're on into a destructible arena. Headlines become ledges, photos become cover, and rockets leave craters in the news. Your friends join with a link.</p>
+        <div class="cta">
+          <button class="btn big play">▶ Play on this page</button>
+          <a class="btn ghost install" href="#install">Add to Chrome</a>
+        </div>
+        <p class="small">No install to try it. <kbd>A</kbd> <kbd>D</kbd> move, <kbd>W</kbd> jump, click to shoot, right-click to swing. <kbd>Esc</kbd> for the menu.</p>
+      </div>
+      <div class="win">
+        <div class="bar"><i></i><i></i><i></i><span>dailybyte.news/rope-physics-considered-harmful</span></div>
+        <img src="/img/gameplay.jpg" width="1600" height="1000" alt="Two worms fighting on a news article: craters through the text, a ninja rope swinging from a paragraph.">
+      </div>
+    </header>
+  </div>
+
+  <div class="dirt" aria-hidden="true"></div>
+
+  <section class="map">
+    <div class="wrap map-grid">
+      <div>
+        <div class="kicker">▸ THE BIG IDEA</div>
+        <h2>You're looking at the map.</h2>
+        <p class="sec-lead">Hit play and this exact page freezes into a level. Everything you see is solid ground, and everything solid can be blown up.</p>
+        <ul>
+          <li><b>Headlines</b><span>High ground. Easy to rope onto.</span></li>
+          <li><b>Paragraphs</b><span>Dense terrain to tunnel through.</span></li>
+          <li><b>Images</b><span>Cover, until it isn't.</span></li>
+          <li><b>Buttons</b><span>Loose rocks. Knock them out.</span></li>
+        </ul>
+        <button class="btn play">▶ Blow up this page</button>
+      </div>
+      <div class="win">
+        <div class="bar"><i></i><i></i><i></i><span>liero.page/r/fv7pn3pp</span></div>
+        <img src="/img/invite.jpg" width="1600" height="1000" loading="lazy" alt="The in-game menu with the invite link, your name and the controls.">
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="kicker">▸ HOW IT WORKS</div>
+      <h2>Any page. Any friend. Ten seconds.</h2>
+      <p class="sec-lead">Only the host needs the extension. Everyone else just opens the link.</p>
+      <div class="steps">
+        <div class="step"><span class="n">1</span><h3>Open any page</h3><p>A news story, a Wikipedia article, your company's careers page. Scroll to where you want to fight.</p></div>
+        <div class="step"><span class="n">2</span><h3>Click the icon</h3><p>The page turns into a map exactly as you see it. The real site is never changed: leave the game and it's all back.</p></div>
+        <div class="step"><span class="n">3</span><h3>Send the link</h3><p>Friends open it in Chrome, Safari or Firefox and drop straight into your match. Nothing to install.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="dirt" aria-hidden="true"></div>
+
+  <section id="weapons">
+    <div class="wrap arsenal">
+      <div>
+        <div class="kicker">▸ THE ARSENAL</div>
+        <h2>40 weapons. Pick 5.</h2>
+        <p class="sec-lead">The full classic arsenal, with the original physics: bazookas, guided missiles, cluster bombs, napalm, mines, nukes, and a ninja rope to swing across the page between kills.</p>
+        <p class="small">Press <kbd>L</kbd> in a game to choose your five. <kbd>1</kbd>–<kbd>5</kbd> switch between them.</p>
+      </div>
+      <div class="win">
+        <div class="bar"><i></i><i></i><i></i><span>Choose your weapons</span></div>
+        <img src="/img/weapons.jpg" width="1600" height="1000" loading="lazy" alt="The weapon picker: 40 weapons grouped into guns, rockets, bombs and traps.">
+      </div>
+    </div>
+    <div class="marquee" aria-hidden="true"><div>
+      <span>BAZOOKA</span><span>MINIGUN</span><span>GRENADE</span><span>SHOTGUN</span><span>MISSILE</span><span>CLUSTER BOMB</span><span>NAPALM</span><span>LASER</span><span>BIG NUKE</span><span>MINE</span><span>FLAMER</span><span>ZIMM</span><span>LARPA</span><span>CHIQUITA BOMB</span><span>GAUSS GUN</span><span>SPIKEBALLS</span><span>HELLRAIDER</span><span>DOOMSDAY</span><span>BOOBY TRAP</span><span>RIFLE</span>
+      <span>BAZOOKA</span><span>MINIGUN</span><span>GRENADE</span><span>SHOTGUN</span><span>MISSILE</span><span>CLUSTER BOMB</span><span>NAPALM</span><span>LASER</span><span>BIG NUKE</span><span>MINE</span><span>FLAMER</span><span>ZIMM</span><span>LARPA</span><span>CHIQUITA BOMB</span><span>GAUSS GUN</span><span>SPIKEBALLS</span><span>HELLRAIDER</span><span>DOOMSDAY</span><span>BOOBY TRAP</span><span>RIFLE</span>
+    </div></div>
+  </section>
+
+  <section id="controls">
+    <div class="wrap">
+      <div class="kicker">▸ CONTROLS</div>
+      <h2>Keyboard and mouse.</h2>
+      <div class="keys">
+        <div><span><kbd>A</kbd><kbd>D</kbd></span>Move</div>
+        <div><span><kbd>W</kbd><kbd>Space</kbd></span>Jump</div>
+        <div><span><kbd>Click</kbd></span>Fire (aim with the mouse)</div>
+        <div><span><kbd>Right-click</kbd></span>Ninja rope</div>
+        <div><span><kbd>W</kbd><kbd>S</kbd></span>Climb the rope</div>
+        <div><span><kbd>A</kbd>+<kbd>D</kbd></span>Dig</div>
+        <div><span><kbd>1</kbd>–<kbd>5</kbd></span>Switch weapon</div>
+        <div><span><kbd>L</kbd></span>Choose weapons</div>
+        <div><span><kbd>Tab</kbd></span>Show solid ground</div>
+        <div><span><kbd>Esc</kbd></span>Menu, invite, leave</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="map">
+    <div class="wrap">
+      <div class="kicker">▸ QUESTIONS</div>
+      <h2>FAQ</h2>
+      <div class="faq">
+        <div>
+          <h3>Does it change the website?</h3>
+          <p>No. Liero.page takes a snapshot of what's on your screen and plays on that. Leave the game and the page is exactly as it was.</p>
+          <h3>What do my friends see?</h3>
+          <p>The snapshot of your screen, like sharing a screenshot. Pick a page you're happy to show, not your inbox.</p>
+          <h3>Does it work on every site?</h3>
+          <p>Almost. Chrome doesn't let extensions run on its own pages (settings, the Web Store) or some PDFs.</p>
+        </div>
+        <div>
+          <h3>Do my friends need to install anything?</h3>
+          <p>No. Invite links open the game in any desktop browser. Only the host needs the Chrome extension.</p>
+          <h3>Can I play on my phone?</h3>
+          <p>Not yet. You need a keyboard and mouse.</p>
+          <h3>Is it free?</h3>
+          <p>Yes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final">
+    <div class="wrap">
+      <h2>Ready? Wreck this page.</h2>
+      <p class="sec-lead" style="margin: 0 auto">Play here right now, then invite a friend from the menu.</p>
+      <div class="cta">
+        <button class="btn big play">▶ Play on this page</button>
+        <a class="btn ghost install" href="#install">Add to Chrome</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <span>Liero.page · game logic from the original <a href="https://www.liero.be/">Liero</a> (© 1998 Joosa Riekkinen, WTFPL) via <a href="https://github.com/gliptic/liero">OpenLiero</a></span>
+      <span><a href="/privacy">Privacy</a> · <a href="mailto:hello@liero.page">hello@liero.page</a></span>
+    </div>
+  </footer>
+
+  <div class="toast" hidden></div>
+
+  <script>
+    // Chrome Web Store listing: paste the URL here once it's published.
+    const STORE_URL = '';
+    const toast = document.querySelector('.toast');
+    let toastTimer;
+    const say = (t) => { toast.textContent = t; toast.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => { toast.hidden = true; }, 3500); };
+
+    document.querySelectorAll('.install').forEach((a) => {
+      if (STORE_URL) { a.href = STORE_URL; a.target = '_blank'; a.rel = 'noopener'; return; }
+      a.addEventListener('click', (e) => { e.preventDefault(); say('Coming to the Chrome Web Store very soon. Play here in the meantime!'); });
+    });
+
+    const touchOnly = matchMedia('(pointer: coarse)').matches && !matchMedia('(any-pointer: fine)').matches;
+    let loading = false;
+    document.querySelectorAll('.play').forEach((b) => b.addEventListener('click', () => {
+      if (touchOnly) { say('Liero.page needs a keyboard and mouse. Open liero.page on a computer.'); return; }
+      if (window.__lieroDemo || loading) return;
+      // The section you clicked from becomes the middle of the map.
+      b.closest('section, header')?.scrollIntoView({ block: 'start' });
+      if (window.lieroDemo) { window.lieroDemo(); return; }
+      loading = true;
+      say('Loading…');
+      const s = document.createElement('script');
+      s.src = '/dist/demo.js';
+      s.onload = () => { loading = false; toast.hidden = true; };
+      s.onerror = () => { loading = false; say('Could not load the game. Check your connection and try again.'); };
+      document.body.appendChild(s);
+    }));
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "name": "liero",
+  "version": "0.1.0",
+  "description": "Liero-style online multiplayer where the web page you're on is the map.",
+  "type": "module",
+  "scripts": {
+    "build": "node extension/build.mjs",
+    "build:prod": "LIERO_SERVER=liero.page node extension/build.mjs",
+    "watch": "node extension/build.mjs --watch",
+    "server": "tsx server/node.ts",
+    "deploy": "npm run build:prod && wrangler deploy --config server/wrangler.toml",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx scripts/liero-sim-test.ts && tsx scripts/codec-test.ts",
+    "extract": "tsx scripts/extract-liero.ts",
+    "package": "npm run build:prod && node scripts/package-store.mjs"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260702.1",
+    "@types/chrome": "^0.0.287",
+    "@types/node": "^22.10.0",
+    "@types/pngjs": "^6.0.5",
+    "@types/ws": "^8.5.13",
+    "esbuild": "^0.24.0",
+    "playwright-core": "^1.63.0",
+    "pngjs": "^7.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.114.17",
+    "ws": "^8.18.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stener88/liero-page"
+  }
+}

@@ -1,0 +1,11 @@
+node_modules/
+.wrangler/
+e2e-out/
+extension/dist/
+web/dist/
+store/build/
+store/shots-raw/
+store/shots-hd/
+*.zip
+.DS_Store
+*.log

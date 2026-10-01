@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Liero.page",
+  "version": "0.1.0",
+  "description": "Liero-style online deathmatch where the page you're on is the map.",
+  "action": { "default_title": "Turn this page into a battlefield" },
+  "icons": { "16": "icons/16.png", "48": "icons/48.png", "128": "icons/128.png" },
+  "background": { "service_worker": "dist/background.js" },
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    { "matches": ["<all_urls>"], "js": ["dist/loader.js"], "run_at": "document_idle" }
+  ],
+  "commands": {
+    "toggle": {
+      "suggested_key": { "default": "Alt+Shift+P" },
+      "description": "Start / leave a game on this page"
+    }
+  },
+  "options_ui": { "page": "options.html", "open_in_tab": false }
+}

@@ -1,0 +1,25 @@
+name = "liero"
+main = "worker.ts"
+compatibility_date = "2024-12-01"
+
+# Serve the game server, landing page and guest client on the apex domain.
+# The domain must be in the same Cloudflare account (it is, if you bought it there).
+routes = [
+  { pattern = "liero.page", custom_domain = true },
+  # Spare domains can be added here too; worker.ts forwards them to liero.page.
+]
+
+# Landing page, privacy page and the guest client (web/), served as static files.
+[assets]
+directory = "../web"
+binding = "ASSETS"
+# Every request goes through worker.ts first, so spare domains can forward to liero.page.
+run_worker_first = true
+
+[[durable_objects.bindings]]
+name = "ROOMS"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"] # SQLite-backed: works on the Workers free plan

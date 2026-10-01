@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Liero.page options</title>
+  <style>
+    body { font: 14px/1.5 system-ui, sans-serif; padding: 16px 20px; min-width: 320px; }
+    label { display: block; margin: 10px 0 4px; font-weight: 600; }
+    input { width: 100%; box-sizing: border-box; padding: 6px 8px; font: inherit; }
+    small { color: #666; }
+    button { margin-top: 14px; padding: 6px 14px; font: inherit; }
+  </style>
+</head>
+<body>
+  <form id="form">
+    <label for="name">Name</label>
+    <input id="name" maxlength="16">
+    <label for="server">Game server</label>
+    <input id="server">
+    <small>Host of your room server, e.g. <code>liero.you.workers.dev</code> or <code>localhost:8787</code>. Leave empty for the default.</small>
+    <div><button type="submit">Save</button> <span id="saved"></span></div>
+  </form>
+  <script src="dist/options.js"></script>
+</body>
+</html>
