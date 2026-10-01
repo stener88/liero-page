@@ -139,6 +139,27 @@ export class Renderer {
     this.edgex.putImageData(img, 0, 0, x0, y0, x1 - x0 + 1, y1 - y0 + 1);
   }
 
+  private earthPat: CanvasPattern | null = null;
+  /** A tiling patch of dark earth (1 texel per world pixel), in the browns of Liero's dug-out dirt. */
+  private earth(): CanvasPattern {
+    if (this.earthPat) return this.earthPat;
+    const n = 64, c = document.createElement('canvas');
+    c.width = n; c.height = n;
+    const x = c.getContext('2d')!, img = x.createImageData(n, n);
+    const tones = [[54, 34, 20], [62, 40, 24], [47, 29, 17], [70, 46, 27], [40, 25, 15]];
+    let seed = 12345;
+    const rnd = () => ((seed = (seed * 1103515245 + 12345) >>> 0) >>> 8) / 16777216;
+    for (let i = 0; i < n * n; i++) {
+      // Clumpy noise: mostly the base tone, with specks and small pebbles.
+      const v = rnd();
+      const t = v < 0.55 ? tones[0] : v < 0.8 ? tones[1] : v < 0.92 ? tones[2] : v < 0.98 ? tones[3] : tones[4];
+      img.data.set([t[0], t[1], t[2], 255], i * 4);
+    }
+    x.putImageData(img, 0, 0);
+    this.earthPat = this.ctx.createPattern(c, 'repeat')!;
+    return this.earthPat;
+  }
+
   private r(n: number) { this.rnd = (this.rnd * 1103515245 + 12345) >>> 0; return (this.rnd >>> 8) % n; }
 
   private pixel(x: number, y: number, color: string, shadow: boolean) {
@@ -196,6 +217,12 @@ export class Renderer {
 
     if (this.fg && this.bg && this.terrain) {
       const t = this.terrain;
+      // Behind the page: Liero-style earth, so craters look dug into the ground instead of blacked out.
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.fillStyle = this.earth();
+      ctx.fillRect(0, 0, t.w, t.h);
+      ctx.restore();
       ctx.drawImage(this.bg, 0, 0, t.w, t.h);
       ctx.drawImage(this.fg, 0, 0, t.w, t.h);
       if (this.edge && f.outline > 0.01) {
